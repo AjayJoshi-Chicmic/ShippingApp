@@ -1,6 +1,6 @@
 ﻿namespace ShippingApp.Services
 {
-    public interface IShippmentServicecs
+    public interface IShipmentService
     {
     }
 }
