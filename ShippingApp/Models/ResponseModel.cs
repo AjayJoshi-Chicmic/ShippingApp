@@ -1,4 +1,4 @@
-﻿namespace BlogApplication.Models
+﻿namespace ShippingApp.Models
 {
     public class ResponseModel
     {

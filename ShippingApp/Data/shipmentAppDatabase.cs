@@ -6,7 +6,7 @@ namespace BlogApplication.Data
     public class shipmentAppDatabase : DbContext
     {
         public shipmentAppDatabase(DbContextOptions options) : base(options) { }
-        /*protected override void OnModelCreating(ModelBuilder builder) 
+        /*protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<UserModel>().HasData(
                 new UserModel
@@ -20,8 +20,7 @@ namespace BlogApplication.Data
                 });
         }*/
         // all tables in database
-        public DbSet<ShipmentModel> shipments { get; set; }
-        public DbSet<ProductModel> proudcts { get; set; }
-        public DbSet<ProductType> types { get; set; }
+        public DbSet<ShipmentModel> Shipments { get; set; }
+        public DbSet<ShipmentStatusModel> ShipmentStatus { get; set; }
     }
 }
