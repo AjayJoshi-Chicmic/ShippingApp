@@ -1,4 +1,4 @@
-using BlogApplication.Data;
+using ShippingApp.Data;
 using Microsoft.EntityFrameworkCore;
 using ShippingApp.Services;
 
@@ -14,7 +14,7 @@ builder.Services.AddDbContext<shipmentAppDatabase>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionString")));
 builder.Services.AddScoped<IShipmentService, ShipmentService>();
 builder.Services.AddScoped<IMessageQueueService, MessageQueueService>();
-
+builder.Services.AddHostedService<BackgroundTaskService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipelin

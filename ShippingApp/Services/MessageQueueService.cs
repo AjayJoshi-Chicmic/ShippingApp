@@ -13,7 +13,7 @@ namespace ShippingApp.Services
             var factory = new ConnectionFactory
             {
                 Uri
-                = new Uri("amqp://guest:guest@localhost:5672")
+                = new Uri("amqp://s2:guest@192.180.3.63:5672")
             };
             var connection = factory.CreateConnection();
             var channel = connection.CreateModel();
@@ -32,7 +32,7 @@ namespace ShippingApp.Services
             var factory = new ConnectionFactory
             {
                 Uri
-                = new Uri("amqp://guest:guest@localhost:5672")
+                = new Uri("amqp://s2:guest@192.180.3.63:5672")
             };
             var connection = factory.CreateConnection();
             var channel = connection.CreateModel();
@@ -42,15 +42,19 @@ namespace ShippingApp.Services
                 autoDelete: false,
                 arguments: null);
 
-            var consumer = new EventingBasicConsumer(channel);
-            consumer.Received += (sender, e) =>
+            while (true)
             {
-                var body = e.Body.ToArray();
+                var result = channel.BasicGet(queueName, true);
+
+                if (result == null)
+                {
+                    // no more messages in the queue
+                    break;
+                }
+
+                var body = result.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
-                Console.WriteLine(message);
-            };
-            channel.BasicConsume(queueName, true, consumer);
-            Console.ReadLine();
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using BlogApplication.Data;
+﻿using ShippingApp.Data;
 using ShippingApp.Models;
 
 namespace ShippingApp.Services
@@ -6,12 +6,10 @@ namespace ShippingApp.Services
     public class ShipmentService : IShipmentService
     {
         private readonly shipmentAppDatabase _db;
-        private readonly IMessageQueueService messageQueue;
-
-        public ShipmentService(shipmentAppDatabase _db,IMessageQueueService messageQueue)
+        
+        public ShipmentService(shipmentAppDatabase _db)
         {
             this._db = _db;
-            this.messageQueue = messageQueue;
         }
         public ResponseModel AddShipment(AddShipmentModel shipment)
         {
@@ -23,8 +21,8 @@ namespace ShippingApp.Services
                 _shipment.shipmentStatusId = shipmentStatus.shipmentStatusId;
                 _db.Shipments.Add(_shipment);
                 _db.SaveChanges();
-                var res = messageQueue.producer("test",_shipment);
-                return new ResponseModel("Shipment Added",res);
+                //var res = messageQueue.producer("test",_shipment);
+                return new ResponseModel("Shipment Added",_shipment);
             }
             catch(Exception ex)
             {

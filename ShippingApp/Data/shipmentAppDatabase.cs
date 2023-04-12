@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ShippingApp.Models;
 
-namespace BlogApplication.Data
+namespace ShippingApp.Data
 {
     public class shipmentAppDatabase : DbContext
     {
