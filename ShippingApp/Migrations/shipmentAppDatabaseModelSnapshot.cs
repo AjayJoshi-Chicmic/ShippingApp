@@ -69,7 +69,7 @@ namespace ShippingApp.Migrations
 
                     b.HasKey("shipmentId");
 
-                    b.ToTable("Shipments");
+                    b.ToTable("Shipments", (string)null);
                 });
 
             modelBuilder.Entity("ShippingApp.Models.ShipmentStatusModel", b =>
@@ -94,7 +94,7 @@ namespace ShippingApp.Migrations
 
                     b.HasKey("shipmentStatusId");
 
-                    b.ToTable("ShipmentStatus");
+                    b.ToTable("ShipmentStatus", (string)null);
                 });
 #pragma warning restore 612, 618
         }

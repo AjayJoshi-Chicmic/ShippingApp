@@ -22,5 +22,6 @@ namespace ShippingApp.Data
         // all tables in database
         public DbSet<ShipmentModel> Shipments { get; set; }
         public DbSet<ShipmentStatusModel> ShipmentStatus { get; set; }
+        public DbSet<test> tests { get; set; }
     }
 }
