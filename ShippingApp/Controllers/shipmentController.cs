@@ -10,13 +10,17 @@ namespace ShippingApp.Controllers
     public class shipmentController : ControllerBase
     {
         private readonly IShipmentService shipmentService;
+        private readonly IShortestRoute shortestRoute;
+        private readonly ICheckpointServices checkpointServices;
 
-        public shipmentController(IShipmentService shipmentService)
+        public shipmentController(IShipmentService shipmentService, IShortestRoute shortestRoute,ICheckpointServices checkpointServices)
         {
             this.shipmentService = shipmentService;
+            this.shortestRoute = shortestRoute;
+            this.checkpointServices = checkpointServices;
         }
         [HttpGet]
-        public IActionResult getShipment(Guid shipmentId,Guid customerId,Guid productTypeId,Guid containerTypeId)
+        public IActionResult getShipment(Guid shipmentId, Guid customerId, Guid productTypeId, Guid containerTypeId)
         {
             var response = shipmentService.GetShipment(shipmentId, customerId, productTypeId, containerTypeId);
             return StatusCode(response.statusCode, response);
@@ -26,6 +30,20 @@ namespace ShippingApp.Controllers
         {
             var response = shipmentService.AddShipment(shipment);
             return StatusCode(response.statusCode, response);
+        }
+        [HttpPost]
+        [Route("shipmentRoute")]
+        public IActionResult ShipmentRoute(GetShipmentRoute shipment)
+        {
+            var response = shortestRoute.bestRoute(shipment.cp1, shipment.cp2);
+            return Ok(response);
+        }
+        [HttpPost]
+        [Route("addCheckpoint")]
+        public IActionResult addCheckpoint(AddCheckpointModel checkpoint)
+        {
+            var response = checkpointServices.addCheckpoint(checkpoint);
+            return Ok(response);
         }
     }
 }

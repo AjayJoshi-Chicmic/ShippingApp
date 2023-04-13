@@ -13,6 +13,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<shipmentAppDatabase>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionString")));
 builder.Services.AddScoped<IShipmentService, ShipmentService>();
+builder.Services.AddScoped<ICheckpointServices, CheckpointServices>();
+builder.Services.AddScoped<IShortestRoute, ShortestRoute>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IMessageQueueService, MessageQueueService>();
 builder.Services.AddHostedService<BackgroundTaskService>();

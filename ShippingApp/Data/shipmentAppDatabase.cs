@@ -23,5 +23,7 @@ namespace ShippingApp.Data
         public DbSet<ShipmentModel> Shipments { get; set; }
         public DbSet<ShipmentStatusModel> ShipmentStatus { get; set; }
         public DbSet<test> tests { get; set; }
+        public DbSet<CheckpointModel> ShipmentCheckpoints { get; set; }
+        public DbSet<CheckpointsDistanceModel> CheckpointMappings { get; set; }
     }
 }
