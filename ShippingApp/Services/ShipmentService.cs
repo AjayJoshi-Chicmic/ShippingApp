@@ -5,11 +5,15 @@ namespace ShippingApp.Services
 {
     public class ShipmentService : IShipmentService
     {
+        private readonly IMessageProducerService messageProducer;
         private readonly shipmentAppDatabase _db;
-        
-        public ShipmentService(shipmentAppDatabase _db)
+        private readonly IShortestRoute shortestRoute;
+
+        public ShipmentService(shipmentAppDatabase _db,IShortestRoute shortestRoute,IMessageProducerService messageProducer)
         {
-            this._db = _db;
+            this.messageProducer = messageProducer;
+            this._db= _db;
+            this.shortestRoute = shortestRoute;
         }
         public ResponseModel AddShipment(AddShipmentModel shipment)
         {
@@ -17,15 +21,30 @@ namespace ShippingApp.Services
             {
                 ShipmentModel _shipment = new ShipmentModel(shipment);
                 ShipmentStatusModel shipmentStatus = new ShipmentStatusModel(_shipment.shipmentId);
+                var a = _db.Shipments.Select(x => x).First();
                 _db.ShipmentStatus.Add(shipmentStatus);
                 _shipment.shipmentStatusId = shipmentStatus.shipmentStatusId;
                 _db.Shipments.Add(_shipment);
                 _db.SaveChanges();
-                //var res = messageQueue.producer("test",_shipment);
+                var cpt = new GetShipmentRoute();
+                var cp1 = _db.ShipmentCheckpoints.Where(x=>x.checkpointId == shipment.origin).First();
+                var cp2 = _db.ShipmentCheckpoints.Where(x => x.checkpointId == shipment.destination).First();
+                cpt.cp1 = cp1;
+                cpt.cp2 = cp2;
+                messageProducer.producer("shortestRoute", cpt);
+                var res2 = shortestRoute.bestRoute(cp1, cp2);
+                var del = new ShipmentDeliveryModel
+                {
+                    shipment = _shipment,
+                    checkpoints = res2
+                };
+                messageProducer.producer("shipmentDelivery", del);
                 return new ResponseModel("Shipment Added",_shipment);
             }
             catch(Exception ex)
             {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
                 return new ResponseModel(500, ex.Message, false); ;
             }
         }

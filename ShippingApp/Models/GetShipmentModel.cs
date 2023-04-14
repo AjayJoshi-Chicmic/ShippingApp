@@ -8,13 +8,13 @@
         public Guid cointainerTypeId { get; set; }
         public float shipmentPrice { get; set; } = 0;
         public float shipmentWeight { get; set; } = 0;
-        public string origin { get; set; } = string.Empty;
-        public string destination { get; set; } = string.Empty;
+        public Guid origin { get; set; } = Guid.Empty;
+        public Guid destination { get; set; } = Guid.Empty;
         public DateTime dateOfOrder { get; set; } = DateTime.Now;
         public Guid shipmentStatusId { get; set; }
         public string notes { get; set; } = string.Empty;
         public string shipmentStatus { get; set; } = string.Empty;
-        public string currentLocation { get; set; } = string.Empty;
+        public Guid currentLocation { get; set; }
         public DateTime lastUpdated { get; set; } = DateTime.Now;
 
         public GetShipmentModel()

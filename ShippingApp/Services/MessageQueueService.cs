@@ -1,5 +1,6 @@
 ﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using ShippingApp.Data;
 using ShippingApp.Models;
 using System.Text;
 using System.Text.Json;
@@ -9,61 +10,15 @@ namespace ShippingApp.Services
     public class MessageQueueService : IMessageQueueService
     {
         private readonly IShipmentService shipmentService;
-        private readonly IEmailService emailService;
+        //private readonly IEmailService emailService;
+        //private readonly IShortestRoute shortestRoute;
 
-        public MessageQueueService(IShipmentService shipmentService,IEmailService emailService)
+        public MessageQueueService(IShipmentService shipmentService)//,IEmailService emailService,IShortestRoute shortestRoute)
         {
             this.shipmentService = shipmentService;
-            this.emailService = emailService;
+            //this.emailService = emailService;
+            //this.shortestRoute = shortestRoute;
         }
-        public ResponseModel producer(string queueName,object message)
-        {
-            var factory = new ConnectionFactory
-            {
-                Uri
-                = new Uri("amqp://s2:guest@192.180.3.63:5672")
-            };
-            var connection = factory.CreateConnection();
-            var channel = connection.CreateModel();
-            channel.QueueDeclare(queueName,
-                durable: true,
-                exclusive: false,
-                autoDelete: false,
-                arguments: null);
-            var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
-
-            channel.BasicPublish("", queueName, null, body);
-            return new ResponseModel();
-        }
-        /*public void Consumer(string queueName)
-        {
-            var factory = new ConnectionFactory
-            {
-                Uri
-                = new Uri("amqp://s2:guest@192.180.3.63:5672")
-            };
-            var connection = factory.CreateConnection();
-            var channel = connection.CreateModel();
-            channel.QueueDeclare(queueName,
-                durable: true,
-                exclusive: false,
-                autoDelete: false,
-                arguments: null);
-
-            while (true)
-            {
-                var result = channel.BasicGet(queueName, true);
-
-                if (result == null)
-                {
-                    // no more messages in the queue
-                    break;
-                }
-
-                var body = result.Body.ToArray();
-                var message = Encoding.UTF8.GetString(body);
-            }
-        }*/
         public void Consumer(string queueName)
         {
                 var factory = new ConnectionFactory
@@ -86,8 +41,10 @@ namespace ShippingApp.Services
                     if(queueName == "createShipment")
                     {
                         AddShipmentModel shipment = JsonSerializer.Deserialize<AddShipmentModel>(message)!;
+                        Console.WriteLine(98);
                         if (shipment != null)
                         {
+                            Console.WriteLine(99);
                             var response = shipmentService!.AddShipment(shipment!);
                         }
                     }
@@ -96,7 +53,15 @@ namespace ShippingApp.Services
                         EmailModel email = JsonSerializer.Deserialize<EmailModel>(message)!;
                         if (email != null)
                         {
-                            var response = emailService!.SendEmail(email);
+                            //var response = emailService!.SendEmail(email);
+                        }
+                    }
+                    else if (queueName == "shortestRoute")
+                    {
+                        GetShipmentRoute cpt = JsonSerializer.Deserialize<GetShipmentRoute>(message)!;
+                        if (cpt != null)
+                        {
+                            //var response = shortestRoute!.bestRoute(cpt.cp1!,cpt.cp2!);
                         }
                     }
                 };

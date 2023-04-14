@@ -17,13 +17,12 @@ namespace ShippingApp.Services
         }
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            using (var scope = _scopeFactory.CreateScope())
-            {
+            var scope = _scopeFactory.CreateScope();
                 var messageQueueService = scope.ServiceProvider.GetService<IMessageQueueService>();
                 Task.Run(() => messageQueueService!.Consumer("createShipment"));
                 Task.Run(() => messageQueueService!.Consumer("sendEmail"));
-                return Task.CompletedTask;
-            }    
+                Task.Run(() => messageQueueService!.Consumer("shortestRoute"));
+                return Task.CompletedTask;   
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
@@ -31,6 +30,5 @@ namespace ShippingApp.Services
             _cancellationTokenSource.Cancel();
             await Task.CompletedTask;
         }
-        
     }
 }

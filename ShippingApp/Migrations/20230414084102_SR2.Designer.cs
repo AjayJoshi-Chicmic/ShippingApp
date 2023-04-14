@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShippingApp.Data;
 
@@ -11,9 +12,11 @@ using ShippingApp.Data;
 namespace ShippingApp.Migrations
 {
     [DbContext(typeof(shipmentAppDatabase))]
-    partial class shipmentAppDatabaseModelSnapshot : ModelSnapshot
+    [Migration("20230414084102_SR2")]
+    partial class SR2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

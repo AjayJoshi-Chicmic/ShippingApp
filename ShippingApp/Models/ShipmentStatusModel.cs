@@ -8,7 +8,7 @@ namespace ShippingApp.Models
         public Guid shipmentStatusId { get; set; } = Guid.NewGuid();
         public Guid shipmentId { get; set; }
         public string shipmentStatus { get; set; } = string.Empty;
-        public string currentLocation { get; set; } = string.Empty;
+        public Guid currentLocation { get; set; } = Guid.Empty;
         public DateTime lastUpdated { get; set; } = DateTime.Now;
         public ShipmentStatusModel()
         {
@@ -18,7 +18,6 @@ namespace ShippingApp.Models
         {
             this.shipmentId = shipmentId;
             this.shipmentStatus = "accepted";
-            this.currentLocation= "atOrigin";
         }
     }
 }
