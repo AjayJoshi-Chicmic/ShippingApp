@@ -21,7 +21,6 @@ namespace ShippingApp.Services
             {
                 ShipmentModel _shipment = new ShipmentModel(shipment);
                 ShipmentStatusModel shipmentStatus = new ShipmentStatusModel(_shipment.shipmentId);
-                var a = _db.Shipments.Select(x => x).First();
                 _db.ShipmentStatus.Add(shipmentStatus);
                 _shipment.shipmentStatusId = shipmentStatus.shipmentStatusId;
                 _db.Shipments.Add(_shipment);
@@ -29,9 +28,6 @@ namespace ShippingApp.Services
                 var cpt = new GetShipmentRoute();
                 var cp1 = _db.ShipmentCheckpoints.Where(x=>x.checkpointId == shipment.origin).First();
                 var cp2 = _db.ShipmentCheckpoints.Where(x => x.checkpointId == shipment.destination).First();
-                cpt.cp1 = cp1;
-                cpt.cp2 = cp2;
-                messageProducer.producer("shortestRoute", cpt);
                 var res2 = shortestRoute.bestRoute(cp1, cp2);
                 var del = new ShipmentDeliveryModel
                 {
@@ -42,9 +38,7 @@ namespace ShippingApp.Services
                 return new ResponseModel("Shipment Added",_shipment);
             }
             catch(Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                Console.WriteLine(ex.StackTrace);
+            { 
                 return new ResponseModel(500, ex.Message, false); ;
             }
         }
@@ -70,6 +64,21 @@ namespace ShippingApp.Services
             {
                 return new ResponseModel(500, ex.Message, false);
             }
+        }
+        public ResponseModel ChangeStatus(ShipmentStatusModel status)
+        {
+            try
+            {
+                var shipment = _db.Shipments.Where(x => x.shipmentId == status.shipmentId).Select(x => x).ToList();
+                shipment.First().shipmentStatusId = status.shipmentStatusId;
+                _db.ShipmentStatus.Add(status);
+                _db.SaveChanges();
+                return new ResponseModel("status Changed");
+            }
+            catch(Exception ex)
+            {
+                return new ResponseModel(500, ex.Message, false);
+            } 
         }
     }
 }

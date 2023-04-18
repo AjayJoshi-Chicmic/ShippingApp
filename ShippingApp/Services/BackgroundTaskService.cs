@@ -1,9 +1,4 @@
-﻿using RabbitMQ.Client.Events;
-using RabbitMQ.Client;
-using System.Text;
-using ShippingApp.Models;
-using System.Text.Json;
-
+﻿
 namespace ShippingApp.Services
 {
     public class BackgroundTaskService : IHostedService
@@ -18,11 +13,12 @@ namespace ShippingApp.Services
         public Task StartAsync(CancellationToken cancellationToken)
         {
             var scope = _scopeFactory.CreateScope();
-                var messageQueueService = scope.ServiceProvider.GetService<IMessageQueueService>();
-                Task.Run(() => messageQueueService!.Consumer("createShipment"));
-                Task.Run(() => messageQueueService!.Consumer("sendEmail"));
-                Task.Run(() => messageQueueService!.Consumer("shortestRoute"));
-                return Task.CompletedTask;   
+            var messageQueueService = scope.ServiceProvider.GetService<IMessageQueueService>();
+            Task.Run(() => messageQueueService!.Consumer("shipmentStatus"));
+            Task.Run(() => messageQueueService!.Consumer("createShipment"));
+            Task.Run(() => messageQueueService!.Consumer("sendEmail"));
+            Task.Run(() => messageQueueService!.Consumer("shortestRoute"));
+            return Task.CompletedTask;   
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)

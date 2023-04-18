@@ -11,7 +11,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<shipmentAppDatabase>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionString")), ServiceLifetime.Scoped);
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionString")));
 builder.Services.AddScoped<IShipmentService, ShipmentService>();
 builder.Services.AddScoped<ICheckpointServices, CheckpointServices>();
 builder.Services.AddScoped<IShortestRoute, ShortestRoute>();
@@ -23,9 +23,9 @@ var app = builder.Build();
 
 // Configure the HTTP request pipelin
 
-    app.UseSwagger();
-    app.UseSwaggerUI();
+app.UseSwagger();
 
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

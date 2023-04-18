@@ -45,5 +45,12 @@ namespace ShippingApp.Controllers
             var response = checkpointServices.addCheckpoint(checkpoint);
             return Ok(response);
         }
+        [HttpGet]
+        [Route("getCheckpoint")]
+        public IActionResult getCheckpoint(Guid checkpointId)
+        {
+            var response = checkpointServices.getCheckpoints(checkpointId);
+            return Ok(response);
+        }
     }
 }

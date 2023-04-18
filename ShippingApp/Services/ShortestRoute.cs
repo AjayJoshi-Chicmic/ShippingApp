@@ -12,6 +12,7 @@ namespace ShippingApp.Services
             this._db = _db;
         }
         List<CheckpointModel> cps = new List<CheckpointModel>();
+        int count = 0;
         public List<CheckpointModel> bestRoute(CheckpointModel cp1,CheckpointModel cp2)
         {
             var Route = _db.Routes.Where(x => ((x.checkpoint1Id == cp1.checkpointId) && (x.checkpoint2Id == cp2.checkpointId))||((x.checkpoint2Id == cp1.checkpointId) && (x.checkpoint1Id == cp2.checkpointId))).Select(x => x).ToList();
@@ -35,14 +36,30 @@ namespace ShippingApp.Services
                         cps.Add(cp);
                     }
                 }
-                return cps;
+                List<CheckpointModel> temp = new List<CheckpointModel>(cps);
+                cps.Clear();
+                return temp;
             }
             List<CheckpointModel> cpList= new List<CheckpointModel>();
             var checkpoints = _db.ShipmentCheckpoints.Where(x=>(x.checkpointId != cp1.checkpointId) && (x.checkpointId != cp2.checkpointId)).Select(x => x).ToList();
             temp = checkpoints;
+            count = checkpoints.Count-1;
             cps.Add(cp1);
             var cost = getCost(cp1,cp2);
-            cps.Add(cp2);
+            Console.WriteLine(test2.Count());
+            foreach(var tests in test2)
+            {
+                Console.WriteLine(tests.Key);
+                Console.WriteLine(tests.Value.Count());
+            }
+            var minKey = test2.Keys.Min();
+            Console.WriteLine(minKey);
+            var cpL = test2.Where(x => x.Key == minKey).Select(x => x.Value).ToList().First();
+            foreach (var cp in cpL)
+            {
+                cps.Add(cp);
+            }
+            //cps.Add(cp2);
             RouteModel route= new RouteModel(cp1,cp2);
             _db.Routes.Add(route);
             int i = 1;
@@ -53,38 +70,66 @@ namespace ShippingApp.Services
                 i++;
             }
             _db.SaveChanges();
-            return cps;
+            
+            List<CheckpointModel> tempo = new List<CheckpointModel>(cps);
+            cps.Clear();
+            return tempo;
         }
 
         List<CheckpointModel> temp = new List<CheckpointModel>();
-
+        List<CheckpointModel> tempList = new List<CheckpointModel>();
+        Dictionary<float,List<CheckpointModel>> test2 = new Dictionary<float,List<CheckpointModel>>();
+        
         public  getBestRouteCheckpoint getCost(CheckpointModel cp1, CheckpointModel cp2)
         {
             var costs = _db.CheckpointMappings.Where(x => (x.checkpoint1Id == cp1.checkpointId && x.checkpoint2Id == cp2.checkpointId) || (x.checkpoint1Id == cp2.checkpointId && x.checkpoint2Id == cp1.checkpointId)).Select(x => x.cost).ToList();
             var temp2 = temp.Where(x => x.checkpointId != cp1.checkpointId && x.checkpointId != cp2.checkpointId).Select(x => x).ToList();
             temp = temp2;
             if (temp.Count == 0) 
-            {
+            { 
                 return new getBestRouteCheckpoint(costs.First(),cp1,cp2);
             }
+            count--;
             float cost = costs.First();
+            Console.WriteLine(costs.First());
             float tempCost = 0;
             var shortRoute = new getBestRouteCheckpoint(0,cp1,cp2);
+            var tempPrevCost = cost;
             foreach (var checkpoint in temp)
             {
-                tempCost = getCost(cp1, checkpoint).cost + getCost(cp2, checkpoint).cost;
+                Console.WriteLine($"{cp1.checkpointName} " + " " + $"{checkpoint.checkpointName}" + " " + $"{cp2.checkpointName}");
+                var c1 = getCost(cp1, checkpoint).cost;
+                var c2 = getCost(checkpoint, cp2).cost;
+                
+                Console.WriteLine(c1 + " " + "cost" + " " + c2 + " " + cost);
+                Console.WriteLine(temp.Count() + " " + count);
+                tempPrevCost = cost;
+                tempCost = c1 + c2;
                 if (cost > tempCost)
                 {
                     cost = tempCost;
                     shortRoute.cp1 = checkpoint;
                     shortRoute.cp2 = cp2;
-                    shortRoute.cost = cost;
+                    shortRoute.cost = tempCost;
                 }
             }
-            if(shortRoute.cost> 0)
+            
+            Console.WriteLine(shortRoute.cost);
+            Console.WriteLine(temp.Count());
+            shortRoute.cost = cost;
+            if (shortRoute.cost > 0)
             {
-                cps.Add(shortRoute.cp1);
+                Console.WriteLine(shortRoute.cp2.checkpointName);
+                tempList.Add(shortRoute.cp2);
             }
+            Console.WriteLine(tempList.Count());
+            if(temp.Count() == count )
+            {
+                Console.WriteLine(temp.Count() + " "+ count);
+                test2.Add(tempPrevCost, tempList);
+                Console.WriteLine(tempList.Count());
+            }
+            count++;
             return shortRoute;
         }
     }

@@ -13,16 +13,24 @@ namespace ShippingApp.Services
         }
         public ResponseModel addCheckpoint(AddCheckpointModel checkpoint)
         {
-            var _checkpoint = new CheckpointModel(checkpoint);
-            _db.ShipmentCheckpoints.Add(_checkpoint);
-            _db.SaveChanges();
-            createDistance(_checkpoint);
-            _db.SaveChanges();
-            return new ResponseModel();
+            try
+            {
+                var _checkpoint = new CheckpointModel(checkpoint);
+                _db.ShipmentCheckpoints.Add(_checkpoint);
+                _db.SaveChanges();
+                createDistance(_checkpoint);
+                _db.SaveChanges();
+                return new ResponseModel();
+            }
+            catch(Exception ex)
+            {
+                return new ResponseModel(500,ex.Message,false);
+            }
+            
         }
         public void createDistance(CheckpointModel checkpoint)
         {
-            var checkpoints = _db.ShipmentCheckpoints.Select(x => x).ToList();
+            var checkpoints = _db.ShipmentCheckpoints.Where(x=>x.checkpointId!=checkpoint.checkpointId).Select(x => x).ToList();
             if(checkpoints.Count == 0) { return; }
             foreach (var _checkpoint in checkpoints)
             {
@@ -67,6 +75,18 @@ namespace ShippingApp.Services
                     cost = Convert.ToSingle(cost)
                 };
                 _db.CheckpointMappings.Add(checkpointDistanceMap);
+            }
+        }
+        public ResponseModel getCheckpoints(Guid checkpointId)
+        {
+            try
+            {
+                var checkpoints = _db.ShipmentCheckpoints.Where(x => x.checkpointId == checkpointId || checkpointId == Guid.Empty).Select(x => x).ToList();
+                return new ResponseModel("Checkpoint", checkpoints);
+            }
+            catch(Exception ex)
+            {
+                return new ResponseModel(500, ex.Message, false);
             }
         }
     }
