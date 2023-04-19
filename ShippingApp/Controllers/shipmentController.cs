@@ -52,5 +52,12 @@ namespace ShippingApp.Controllers
             var response = checkpointServices.getCheckpoints(checkpointId);
             return Ok(response);
         }
+        [HttpGet]
+        [Route("getShipmentStatus")]
+        public IActionResult getShipmentStatus(Guid shipmentId)
+        {
+            var response = shipmentService.getShipmentStatus(shipmentId);
+            return Ok(response);
+        }
     }
 }

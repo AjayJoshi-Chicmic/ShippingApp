@@ -17,7 +17,7 @@ namespace ShippingApp.Models
         public ShipmentStatusModel(Guid shipmentId)
         {
             this.shipmentId = shipmentId;
-            this.shipmentStatus = "accepted";
+            this.shipmentStatus = "Shipment in Queue";
         }
     }
 }

@@ -80,5 +80,33 @@ namespace ShippingApp.Services
                 return new ResponseModel(500, ex.Message, false);
             } 
         }
+        public ResponseModel getShipmentStatus(Guid shipmentId)
+        {
+            try
+            {
+                List<GetShipmentStatus> statusList = new List<GetShipmentStatus>();
+                var shipmentStatus = _db.ShipmentStatus.Where(x=>x.shipmentId == shipmentId).OrderByDescending(x=>x.lastUpdated).Select(x => x).ToList();
+                foreach(var status in shipmentStatus)
+                {
+                    var checkpoint = _db.ShipmentCheckpoints.Where(x=>x.checkpointId==status.currentLocation).Select(x => x.checkpointName).ToList();
+                    if (checkpoint.Count()==0) 
+                    {
+                        var Sstatus = new GetShipmentStatus(status, "At Origin");
+                        statusList.Add(Sstatus);
+                    }
+                    else
+                    {
+                        var Sstatus = new GetShipmentStatus(status, checkpoint.First());
+                        statusList.Add(Sstatus);
+                    }
+                }
+                return new ResponseModel("Shipment History",statusList);
+            }
+            catch(Exception ex)
+            {
+                return new ResponseModel(500, ex.Message, false);
+            }
+            
+        }
     }
 }
