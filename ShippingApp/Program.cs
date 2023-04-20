@@ -22,6 +22,7 @@ builder.Services.AddScoped<IShipmentService, ShipmentService>();
 builder.Services.AddScoped<ICheckpointServices, CheckpointServices>();
 builder.Services.AddScoped<IShortestRoute, ShortestRoute>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IApiCallingService, ApiCallingService>();
 builder.Services.AddScoped<IMessageQueueService, MessageQueueService>();
 builder.Services.AddScoped<IMessageProducerService, MessageProducerService>();
 builder.Services.AddHostedService<BackgroundTaskService>();

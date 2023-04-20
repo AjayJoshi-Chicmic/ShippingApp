@@ -59,5 +59,19 @@ namespace ShippingApp.Controllers
             var response = shipmentService.getShipmentStatus(shipmentId);
             return Ok(response);
         }
+        [HttpGet]
+        [Route("getDriverShipment")]
+        public IActionResult getDriverShipment(Guid driverId)
+        {
+            var response = shipmentService.getDriverShipment(driverId);
+            return Ok(response);
+        }
+        [HttpGet]
+        [Route("getShipmentRoute")]
+        public IActionResult getShipmentRoute(Guid shipmentId)
+        {
+            var response = shipmentService.getShortRoute(shipmentId);
+            return Ok(response);
+        }
     }
 }

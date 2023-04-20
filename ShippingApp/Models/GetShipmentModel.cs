@@ -4,38 +4,39 @@
     {
         public Guid shipmentId { get; set; }
         public Guid customerId { get; set; }
-        public Guid productTypeId { get; set; }
-        public Guid cointainerTypeId { get; set; }
+        public string productType { get; set; } = string.Empty;
+        public string cointainerType { get; set; } = string.Empty;
         public float shipmentPrice { get; set; } = 0;
         public float shipmentWeight { get; set; } = 0;
-        public Guid origin { get; set; } = Guid.Empty;
-        public Guid destination { get; set; } = Guid.Empty;
+        public string origin { get; set; } = string.Empty;
+        public string destination { get; set; } = string.Empty; 
         public DateTime dateOfOrder { get; set; } = DateTime.Now;
-        public Guid shipmentStatusId { get; set; }
+        public Guid shipmentStatusId { get; set; } = Guid.Empty;
         public string notes { get; set; } = string.Empty;
         public string shipmentStatus { get; set; } = string.Empty;
-        public Guid currentLocation { get; set; }
+        public string currentLocation { get; set; } = string.Empty;
         public DateTime lastUpdated { get; set; } = DateTime.Now;
 
         public GetShipmentModel()
         {
 
         }
-        public GetShipmentModel(ShipmentModel shipment,ShipmentStatusModel shipmentStatus)
+        public GetShipmentModel(ShipmentModel shipment,ShipmentStatusModel shipmentStatus,string location,string originName,string destinationName,string productType,string containerType)
         {
             this.shipmentId = shipment.shipmentId;
             this.customerId = shipment.customerId;
             this.shipmentWeight = shipment.shipmentWeight;
-            this.productTypeId = shipment.productTypeId;
-            this.cointainerTypeId = shipment.cointainerTypeId;
-            this.origin = shipment.origin;
-            this.destination = shipment.destination;
+            this.shipmentPrice= shipment.shipmentPrice;
+            this.productType = productType;
+            this.cointainerType = containerType;
+            this.origin = originName;
+            this.destination = destinationName;
             this.notes = shipment.notes;
             this.dateOfOrder= shipment.dateOfOrder;
             this.shipmentStatusId= shipment.shipmentStatusId;
             this.shipmentStatus = shipmentStatus.shipmentStatus;
-            this.currentLocation = shipmentStatus.currentLocation;
-            this.lastUpdated = shipment.lastUpdated;
+            this.currentLocation = location;
+            this.lastUpdated = shipmentStatus.lastUpdated;
         }
     }
 }

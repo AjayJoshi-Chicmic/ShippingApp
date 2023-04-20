@@ -1,5 +1,6 @@
 ﻿using ShippingApp.Data;
 using ShippingApp.Models;
+using System.Text.Json;
 
 namespace ShippingApp.Services
 {
@@ -8,12 +9,14 @@ namespace ShippingApp.Services
         private readonly IMessageProducerService messageProducer;
         private readonly shipmentAppDatabase _db;
         private readonly IShortestRoute shortestRoute;
+        private readonly IApiCallingService apiCallingService;
 
-        public ShipmentService(shipmentAppDatabase _db,IShortestRoute shortestRoute,IMessageProducerService messageProducer)
+        public ShipmentService(shipmentAppDatabase _db,IShortestRoute shortestRoute,IMessageProducerService messageProducer,IApiCallingService apiCallingService)
         {
             this.messageProducer = messageProducer;
             this._db= _db;
             this.shortestRoute = shortestRoute;
+            this.apiCallingService = apiCallingService;
         }
         public ResponseModel AddShipment(AddShipmentModel shipment)
         {
@@ -23,6 +26,7 @@ namespace ShippingApp.Services
                 ShipmentStatusModel shipmentStatus = new ShipmentStatusModel(_shipment.shipmentId);
                 _db.ShipmentStatus.Add(shipmentStatus);
                 _shipment.shipmentStatusId = shipmentStatus.shipmentStatusId;
+                _shipment.shipmentPrice = _shipment.shipmentWeight * 83;
                 _db.Shipments.Add(_shipment);
                 _db.SaveChanges();
                 var cpt = new GetShipmentRoute();
@@ -54,15 +58,29 @@ namespace ShippingApp.Services
                 List<GetShipmentModel> models = new List<GetShipmentModel>();   
                 foreach(var shipment in shipments)
                 {
+                    var product = apiCallingService.GetProductType(shipment.productTypeId);
+                    var container = apiCallingService.GetContainerType(shipment.cointainerTypeId);
+                    var originName = _db.ShipmentCheckpoints.Where(x => x.checkpointId == shipment.origin).Select(x => x.checkpointName).First().ToString();
+                    var destinationName = _db.ShipmentCheckpoints.Where(x => x.checkpointId == shipment.destination).Select(x => x.checkpointName).First().ToString();
                     ShipmentStatusModel status = _db.ShipmentStatus.Where(x => x.shipmentStatusId==shipment.shipmentStatusId).Select(x => x).OrderByDescending(x => x.lastUpdated).First();
-                    GetShipmentModel _shipment = new GetShipmentModel(shipment,status);
+                    string location = "";
+                    if(status.currentLocation == Guid.Empty)
+                    {
+                        location = "At Origin"; 
+                    }
+                    else
+                    {
+                        location = _db.ShipmentCheckpoints.Where(x => x.checkpointId == status.currentLocation).Select(x => x.checkpointName).First().ToString();
+
+                    }
+                    GetShipmentModel _shipment = new GetShipmentModel(shipment,status,location,originName ,destinationName, product.type,container.containerName);
                     models.Add(_shipment);
                 } 
                 return new ResponseModel("Shipments ", models);
             }
             catch (Exception ex)
             {
-                return new ResponseModel(500, ex.Message, false);
+                return new ResponseModel(500, ex.Message + ex.StackTrace!, false);
             }
         }
         public ResponseModel ChangeStatus(ShipmentStatusModel status)
@@ -71,6 +89,7 @@ namespace ShippingApp.Services
             {
                 var shipment = _db.Shipments.Where(x => x.shipmentId == status.shipmentId).Select(x => x).ToList();
                 shipment.First().shipmentStatusId = status.shipmentStatusId;
+                shipment.First().lastUpdated= status.lastUpdated;
                 _db.ShipmentStatus.Add(status);
                 _db.SaveChanges();
                 return new ResponseModel("status Changed");
@@ -106,7 +125,36 @@ namespace ShippingApp.Services
             {
                 return new ResponseModel(500, ex.Message, false);
             }
-            
+        }
+        public ResponseModel getDriverShipment(Guid driverId) 
+        {
+            try
+            {
+                List<GetShipmentModel> shipments = new List<GetShipmentModel>();   
+                var shipmentIds=apiCallingService.GetShipmentId(driverId);
+                foreach(var shipmentId in shipmentIds)
+                {
+                    var id = new Guid(shipmentId);
+                    var res = GetShipment(id, Guid.Empty, Guid.Empty, Guid.Empty);
+
+                    var obj = JsonSerializer.Serialize(res.data);
+                    List<GetShipmentModel> model = JsonSerializer.Deserialize<List<GetShipmentModel>>(obj!)!;
+                    shipments.Add(model.First());
+                }
+                return new ResponseModel(shipments);
+            }
+            catch(Exception ex)
+            {
+                return new ResponseModel(500, ex.Message , false);
+            } 
+        }
+        public ResponseModel getShortRoute(Guid shipmentId)
+        {
+            var shipment = _db.Shipments.Where(x=>x.shipmentId== shipmentId).First();
+            var origin = _db.ShipmentCheckpoints.Where(y=>y.checkpointId == shipment.origin).Select(x=>x).FirstOrDefault();
+            var destination = _db.ShipmentCheckpoints.Where(y => y.checkpointId == shipment.destination).Select(x => x).FirstOrDefault();
+            var res = shortestRoute.bestRoute(origin, destination);
+            return new ResponseModel(res);
         }
     }
 }
