@@ -68,10 +68,8 @@ namespace ShippingApp.Services
                 }
                 var res = client.GetAsync(appendUrl.ToString()).Result;
                 var data = res.Content.ReadAsStringAsync().Result;
-                Console.WriteLine(data);
                 ResponseModel response = JsonSerializer.Deserialize<ResponseModel>(data)!;
                 var obj = JsonSerializer.Serialize(response.data);
-                Console.WriteLine(",,,"+obj);
                 var list = JsonSerializer.Deserialize<List<string>>(obj);
                 Console.WriteLine(list.Count());
                 //ContainerTypeModel container = response.data!.FirstOrDefault()!;

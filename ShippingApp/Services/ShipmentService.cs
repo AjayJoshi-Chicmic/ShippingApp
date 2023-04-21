@@ -33,9 +33,18 @@ namespace ShippingApp.Services
                 var cp1 = _db.ShipmentCheckpoints.Where(x=>x.checkpointId == shipment.origin).First();
                 var cp2 = _db.ShipmentCheckpoints.Where(x => x.checkpointId == shipment.destination).First();
                 var res2 = shortestRoute.bestRoute(cp1, cp2);
+                var ship = new SendShipmentModel();
+                ship.shipmentId = _shipment.shipmentId;
+                ship.shipmentWeight = _shipment.shipmentWeight;
+                ship.origin = _shipment.origin;
+                ship.Destination = _shipment.destination;
+                var product = apiCallingService.GetProductType(_shipment.productTypeId);
+                ship.productType = product.type;
+                var container = apiCallingService.GetContainerType(_shipment.cointainerTypeId);
+                ship.containerType = container.containerName;
                 var del = new ShipmentDeliveryModel
                 {
-                    shipment = _shipment,
+                    shipment = ship,
                     checkpoints = res2
                 };
                 messageProducer.producer("shipmentDelivery", del);
@@ -153,7 +162,7 @@ namespace ShippingApp.Services
             var shipment = _db.Shipments.Where(x=>x.shipmentId== shipmentId).First();
             var origin = _db.ShipmentCheckpoints.Where(y=>y.checkpointId == shipment.origin).Select(x=>x).FirstOrDefault();
             var destination = _db.ShipmentCheckpoints.Where(y => y.checkpointId == shipment.destination).Select(x => x).FirstOrDefault();
-            var res = shortestRoute.bestRoute(origin, destination);
+            var res = shortestRoute.bestRoute(origin!, destination!);
             return new ResponseModel(res);
         }
     }
