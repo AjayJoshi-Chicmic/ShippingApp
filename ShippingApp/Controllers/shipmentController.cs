@@ -35,7 +35,7 @@ namespace ShippingApp.Controllers
         [Route("shipmentRoute")]
         public IActionResult ShipmentRoute(GetShipmentRoute shipment)
         {
-            var response = shortestRoute.bestRoute(shipment.cp1!, shipment.cp2!);
+            var response = shortestRoute.shortRoute(shipment.cp1!, shipment.cp2!);
             return Ok(response);
         }
         [HttpPost]

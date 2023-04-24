@@ -32,7 +32,7 @@ namespace ShippingApp.Services
                 var cpt = new GetShipmentRoute();
                 var cp1 = _db.ShipmentCheckpoints.Where(x=>x.checkpointId == shipment.origin).First();
                 var cp2 = _db.ShipmentCheckpoints.Where(x => x.checkpointId == shipment.destination).First();
-                var res2 = shortestRoute.bestRoute(cp1, cp2);
+                var res2 = shortestRoute.shortRoute(cp1, cp2);
                 var ship = new SendShipmentModel();
                 ship.shipmentId = _shipment.shipmentId;
                 ship.shipmentWeight = _shipment.shipmentWeight;
@@ -162,7 +162,7 @@ namespace ShippingApp.Services
             var shipment = _db.Shipments.Where(x=>x.shipmentId== shipmentId).First();
             var origin = _db.ShipmentCheckpoints.Where(y=>y.checkpointId == shipment.origin).Select(x=>x).FirstOrDefault();
             var destination = _db.ShipmentCheckpoints.Where(y => y.checkpointId == shipment.destination).Select(x => x).FirstOrDefault();
-            var res = shortestRoute.bestRoute(origin!, destination!);
+            var res = shortestRoute.shortRoute(origin!, destination!);
             return new ResponseModel(res);
         }
     }
