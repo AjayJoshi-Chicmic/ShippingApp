@@ -52,28 +52,17 @@ namespace ShippingApp.Services
                 return container;
             }
         }
-        public List<string> GetShipmentId(Guid? driverId)
+
+        public double GetDistance(CheckpointModel cp1, CheckpointModel cp2)
         {
+
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri(baseUrlS3);//WebApi 1 project URL
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                var res = client.GetAsync($"https://api.mapbox.com/optimized-trips/v1/mapbox/driving/{cp1.longitude},{cp1.latitude};{cp2.longitude},{cp2.latitude}?access_token=pk.eyJ1Ijoiam9vc2hpIiwiYSI6ImNsaDRjeTBiazBqeG0zZ281enNzOXR4cjcifQ.eLxwYoRL5rhHhQxjv9mZkg").Result;
+                var d = res.Content.ReadAsStringAsync().Result;
+                var data = res.Content.ReadFromJsonAsync<RouteResponse>();
 
-                StringBuilder appendUrl = new StringBuilder("api/Driver/GetShippers?");
-                if (driverId != null)
-                {
-                    appendUrl.Append("id=" + driverId + "");
-
-                }
-                var res = client.GetAsync(appendUrl.ToString()).Result;
-                var data = res.Content.ReadAsStringAsync().Result;
-                ResponseModel response = JsonSerializer.Deserialize<ResponseModel>(data)!;
-                var obj = JsonSerializer.Serialize(response.data);
-                var list = JsonSerializer.Deserialize<List<string>>(obj);
-                Console.WriteLine(list.Count());
-                //ContainerTypeModel container = response.data!.FirstOrDefault()!;
-                return list!;
+                return (data.Result!.trips[0].distance/1000);
             }
         }
     }

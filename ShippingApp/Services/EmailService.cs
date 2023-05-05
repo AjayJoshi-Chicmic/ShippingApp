@@ -8,11 +8,13 @@ namespace ShippingApp.Services
     public class EmailService : IEmailService
     {
         private readonly IConfiguration configuration;
-
+        
+        //constructor with DI
         public EmailService(IConfiguration configuration)
         {
             this.configuration = configuration;
         }
+        //--------------A Function to Send Email------------->
         public ResponseModel SendEmail(EmailModel email)
         {
             MailMessage message = new MailMessage();

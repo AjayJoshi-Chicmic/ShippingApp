@@ -1,4 +1,5 @@
-﻿using ShippingApp.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using ShippingApp.Data;
 using ShippingApp.Migrations;
 using ShippingApp.Models;
 
@@ -7,9 +8,12 @@ namespace ShippingApp.Services
     public class CheckpointServices : ICheckpointServices
     {
         private readonly shipmentAppDatabase _db;
-        public CheckpointServices(shipmentAppDatabase _db)
+        private readonly IApiCallingService apiCalling;
+
+        public CheckpointServices(shipmentAppDatabase _db,IApiCallingService apiCalling)
         {
             this._db = _db;
+            this.apiCalling = apiCalling;
         }
         public ResponseModel addCheckpoint(AddCheckpointModel checkpoint)
         {
@@ -19,6 +23,11 @@ namespace ShippingApp.Services
                 _db.ShipmentCheckpoints.Add(_checkpoint);
                 _db.SaveChanges();
                 createDistance(_checkpoint);
+                _db.SaveChanges();
+                var count = _db.Routes.Count();
+                _db.Routes.RemoveRange(_db.Routes);
+                _db.SaveChanges();
+                _db.RouteCheckpoints.RemoveRange(_db.RouteCheckpoints);
                 _db.SaveChanges();
                 return new ResponseModel();
             }
@@ -34,22 +43,7 @@ namespace ShippingApp.Services
             if(checkpoints.Count == 0) { return; }
             foreach (var _checkpoint in checkpoints)
             {
-                const double earthRadius = 6371; // kilometers
-
-                var lat1 = checkpoint.latitude;
-                var lon1 = checkpoint.longitude;
-                var lat2 = _checkpoint.latitude;
-                var lon2 = _checkpoint.longitude;
-
-                var dLat = (lat2 - lat1) * Math.PI / 180.0;
-                var dLon = (lon2 - lon1) * Math.PI / 180.0;
-
-                var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-                        Math.Cos(lat1 * (Math.PI / 180.0)) * Math.Cos(lat2 * (Math.PI / 180.0)) *
-                Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
-
-                var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-                double dist = earthRadius * c;
+                double dist = apiCalling.GetDistance(checkpoint, _checkpoint);
                 double cost = 0;
                 if (dist < 50)
                 {
@@ -77,12 +71,33 @@ namespace ShippingApp.Services
                 _db.CheckpointMappings.Add(checkpointDistanceMap);
             }
         }
-        public ResponseModel getCheckpoints(Guid checkpointId)
+        public ResponseModel getCheckpoints(Guid checkpointId,string checkpointName)
         {
             try
             {
-                var checkpoints = _db.ShipmentCheckpoints.Where(x => x.checkpointId == checkpointId || checkpointId == Guid.Empty).Select(x => x).ToList();
+                var checkpoints = _db.ShipmentCheckpoints.Where(x => (x.checkpointId == checkpointId || checkpointId == Guid.Empty)&&(EF.Functions.Like(x.checkpointName, "%" + checkpointName + "%")|| checkpointName == null)).Select(x => x).ToList();
+                if(checkpoints.Count== 0)
+                {
+                    return new ResponseModel(404,"Checkpoint not found", checkpoints,false);
+                }
+
                 return new ResponseModel("Checkpoint", checkpoints);
+            }
+            catch(Exception ex)
+            {
+                return new ResponseModel(500, ex.Message, false);
+            }
+        }
+        public ResponseModel getDistance(Guid cp1Id,Guid cp2Id)
+        {
+            try
+            {
+                var dist = _db.CheckpointMappings.Where(x=>(x.checkpoint1Id == cp1Id && x.checkpoint2Id == cp2Id)|| (x.checkpoint2Id == cp1Id && x.checkpoint1Id == cp2Id)).Select(x=>x.distance);
+                if(dist.Count() == 0)
+                {
+                    return new ResponseModel(404, "Not Found",false);
+                }
+                return new ResponseModel("distance",dist.First());
             }
             catch(Exception ex)
             {

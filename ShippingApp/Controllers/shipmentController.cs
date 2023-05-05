@@ -12,12 +12,14 @@ namespace ShippingApp.Controllers
         private readonly IShipmentService shipmentService;
         private readonly IShortestRoute shortestRoute;
         private readonly ICheckpointServices checkpointServices;
+        private readonly ICostService costService;
 
-        public shipmentController(IShipmentService shipmentService, IShortestRoute shortestRoute,ICheckpointServices checkpointServices)
+        public shipmentController(IShipmentService shipmentService, IShortestRoute shortestRoute,ICheckpointServices checkpointServices,ICostService costService)
         {
             this.shipmentService = shipmentService;
             this.shortestRoute = shortestRoute;
             this.checkpointServices = checkpointServices;
+            this.costService = costService;
         }
         [HttpGet]
         public IActionResult getShipment(Guid shipmentId, Guid customerId, Guid productTypeId, Guid containerTypeId)
@@ -43,35 +45,56 @@ namespace ShippingApp.Controllers
         public IActionResult addCheckpoint(AddCheckpointModel checkpoint)
         {
             var response = checkpointServices.addCheckpoint(checkpoint);
-            return Ok(response);
+            return StatusCode(response.statusCode, response);
         }
         [HttpGet]
         [Route("getCheckpoint")]
-        public IActionResult getCheckpoint(Guid checkpointId)
+        public IActionResult getCheckpoint(Guid checkpointId, string? checkpointName)
         {
-            var response = checkpointServices.getCheckpoints(checkpointId);
-            return Ok(response);
+            var response = checkpointServices.getCheckpoints(checkpointId,checkpointName!);
+            return StatusCode(response.statusCode, response);
         }
         [HttpGet]
         [Route("getShipmentStatus")]
         public IActionResult getShipmentStatus(Guid shipmentId)
         {
             var response = shipmentService.getShipmentStatus(shipmentId);
-            return Ok(response);
-        }
-        [HttpGet]
-        [Route("getDriverShipment")]
-        public IActionResult getDriverShipment(Guid driverId)
-        {
-            var response = shipmentService.getDriverShipment(driverId);
-            return Ok(response);
+            return StatusCode(response.statusCode, response);
         }
         [HttpGet]
         [Route("getShipmentRoute")]
         public IActionResult getShipmentRoute(Guid shipmentId)
         {
             var response = shipmentService.getShortRoute(shipmentId);
-            return Ok(response);
+            return StatusCode(response.statusCode, response);
+        }
+        [HttpPost]
+        [Route("getCost")]
+        public IActionResult getCost(GetCostModel shipment)
+        {
+            var response = costService.shipmentCost(shipment.origin,shipment.destination,shipment.productTypeId,shipment.containerTypeId,shipment.shipmentWeight);
+            return StatusCode(response.statusCode, response);
+        }
+        [HttpGet]
+        [Route("getDistance")]
+        public IActionResult getdistance(Guid checkpoint1,Guid checkpoint2)
+        {
+            var response = checkpointServices.getDistance(checkpoint1,checkpoint2);
+            return StatusCode(response.statusCode,response);
+        }
+        [HttpGet]
+        [Route("getData")]
+        public IActionResult getData()
+        {
+            var response = shipmentService.shipmentData();
+            return StatusCode(response.statusCode, response);
+        }
+        [HttpGet]
+        [Route("getChartData")]
+        public IActionResult getChartData()
+        {
+            var response = shipmentService.chartData();
+            return StatusCode(response.statusCode, response);
         }
     }
 }

@@ -8,7 +8,8 @@ namespace ShippingApp.Services
         public ResponseModel ChangeStatus(ShipmentStatusModel status);
         public ResponseModel GetShipment(Guid shipmentId, Guid customerId, Guid productTypeId, Guid containerTypeId);
         public ResponseModel getShipmentStatus(Guid shipmentId);
-        public ResponseModel getDriverShipment(Guid driverId);
         public ResponseModel getShortRoute(Guid shipmentId);
+        public ResponseModel shipmentData();
+        public ResponseModel chartData();
     }
 }

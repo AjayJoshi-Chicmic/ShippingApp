@@ -5,24 +5,37 @@ using System.Text;
 using System.Text.Json;
 
 namespace ShippingApp.Services
-{
+{ 
+    /// <summary>
+    /// 
+    /// A message queue service 
+    /// It has a consumer function which consumes all the queues
+    /// 
+    /// </summary>
+
     public class MessageQueueService : IMessageQueueService
     {
+        //variables
         private readonly IShipmentService shipmentService;
         private readonly IEmailService emailService;
 
+        //constructors with dependency injection
         public MessageQueueService(IShipmentService shipmentService,IEmailService emailService)
         {
             this.shipmentService = shipmentService;
             this.emailService = emailService;
         }
+
+        //------------A Function to consume Data from queue -------->>
         public void Consumer(string queueName)
         {
+            //connecting with rabbit mq 
             var factory = new ConnectionFactory
             {
                 Uri
                 = new Uri("amqp://s2:guest@192.180.3.63:5672")
             };
+            // Adding queue configuration
             var connection = factory.CreateConnection();
             var channel = connection.CreateModel();
             channel.QueueDeclare(queueName,
@@ -31,33 +44,44 @@ namespace ShippingApp.Services
                 autoDelete: false,
                 arguments: null);
             var consumer = new EventingBasicConsumer(channel);
+
             consumer.Received += (sender, e) =>
             {
+                //response
                 var body = e.Body.ToArray();
+                //converting body to string
                 var message = Encoding.UTF8.GetString(body);
+
+                //for createShipment queue
                 if (queueName == "createShipment")
                 {
+                    //deserializing data
                     AddShipmentModel shipment = JsonSerializer.Deserialize<AddShipmentModel>(message)!;
-                    Console.WriteLine(98);
                     if (shipment != null)
                     {
-                        Console.WriteLine(99);
+                        //calling service
                         var response = shipmentService!.AddShipment(shipment!);
                     }
                 }
+                //for sendemail queue
                 else if (queueName == "sendEmail")
                 {
+                    //deserializing data
                     EmailModel email = JsonSerializer.Deserialize<EmailModel>(message)!;
                     if (email != null)
                     {
+                        //calling service
                         var response = emailService!.SendEmail(email);
                     }
                 }
+                //for shipment status
                 else if (queueName == "shipmentStatus")
                 {
+                    //deserializing data
                     ShipmentStatusModel status = JsonSerializer.Deserialize<ShipmentStatusModel>(message)!;
                     if (status != null)
                     {
+                        //calling service
                         var response = shipmentService!.ChangeStatus(status);
                     }
                 }
