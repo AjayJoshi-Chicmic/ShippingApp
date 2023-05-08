@@ -7,6 +7,7 @@ namespace ShippingApp.Services
 {
     public class CheckpointServices : ICheckpointServices
     {
+        // variables
         private readonly shipmentAppDatabase _db;
         private readonly IApiCallingService apiCalling;
 

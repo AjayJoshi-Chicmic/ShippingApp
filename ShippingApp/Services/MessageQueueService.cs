@@ -1,4 +1,5 @@
-﻿using RabbitMQ.Client;
+﻿using Microsoft.Extensions.Configuration;
+using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using ShippingApp.Models;
 using System.Text;
@@ -15,13 +16,16 @@ namespace ShippingApp.Services
 
     public class MessageQueueService : IMessageQueueService
     {
-        //variables
-        private readonly IShipmentService shipmentService;
+		private readonly IConfiguration configuration;
+
+		//variables
+		private readonly IShipmentService shipmentService;
         private readonly IEmailService emailService;
 
         //constructors with dependency injection
-        public MessageQueueService(IShipmentService shipmentService,IEmailService emailService)
+        public MessageQueueService(IShipmentService shipmentService,IEmailService emailService,IConfiguration configuration)
         {
+            this.configuration = configuration;
             this.shipmentService = shipmentService;
             this.emailService = emailService;
         }
@@ -33,7 +37,7 @@ namespace ShippingApp.Services
             var factory = new ConnectionFactory
             {
                 Uri
-                = new Uri("amqp://s2:guest@192.180.3.63:5672")
+                = new Uri(configuration.GetSection("RabbitMQ:Url").Value!)
             };
             // Adding queue configuration
             var connection = factory.CreateConnection();

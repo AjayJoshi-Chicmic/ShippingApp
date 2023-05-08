@@ -2,11 +2,18 @@
 using ShippingApp.Models;
 using System.Text.Json;
 using System.Text;
+using Microsoft.Extensions.Configuration;
 
 namespace ShippingApp.Services
 {
     public class MessageProducerService : IMessageProducerService
     {
+		private readonly IConfiguration configuration;
+
+		public MessageProducerService(IConfiguration configuration)
+        {
+            this.configuration = configuration;
+        }
         //----------- A Function to produce message in queue ------------>
         public ResponseModel producer(string queueName, object message)
         {
@@ -14,7 +21,7 @@ namespace ShippingApp.Services
             var factory = new ConnectionFactory
             {
                 Uri
-                = new Uri("amqp://s2:guest@192.180.3.63:5672")
+                = new Uri(configuration.GetSection("RabbitMQ:Url").Value!)
             };
             //Configuring Queue
             var connection = factory.CreateConnection();
