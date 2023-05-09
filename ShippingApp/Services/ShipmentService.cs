@@ -32,6 +32,10 @@ namespace ShippingApp.Services
                 ShipmentModel _shipment = new ShipmentModel(shipment);
                 //cretaing shipmnet status
                 ShipmentStatusModel shipmentStatus = new ShipmentStatusModel(_shipment.shipmentId);
+                //Shipment transaction map 
+                ShipmentPaymentMap shipmentPaymentMap = new ShipmentPaymentMap(_shipment.shipmentId,shipment.transactionRecordId);
+                //saving payment maping in DB
+                _db.shipmentPaymentMaps.Add(shipmentPaymentMap);
                 //saving status in DB
                 _db.ShipmentStatus.Add(shipmentStatus);
                 //updating shipment

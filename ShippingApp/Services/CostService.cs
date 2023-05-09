@@ -38,7 +38,7 @@ namespace ShippingApp.Services
                 totalDistance += apiCallingService.GetDistance(shortRoute[i], shortRoute[i + 1]);
             }
             //calculating cost
-            var cost = (totalDistance + weight * container.price * product.price)*5;
+            var cost = (totalDistance)*5 + (weight * container.price * product.price)*2;
             return new ResponseModel("cost of shipment", cost);
             
         }
