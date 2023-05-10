@@ -2,7 +2,6 @@
 using ShippingApp.Models;
 using System.Text.Json;
 using System.Text;
-using Microsoft.Extensions.Configuration;
 
 namespace ShippingApp.Services
 {
