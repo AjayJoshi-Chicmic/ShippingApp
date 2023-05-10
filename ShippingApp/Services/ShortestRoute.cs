@@ -25,7 +25,6 @@ namespace ShippingApp.Services
         {
             //Query to get get weight b/w two checkpoints
             var costs = _db.CheckpointMappings.Where(x => (x.checkpoint1Id == cp1.checkpointId && x.checkpoint2Id == cp2.checkpointId) || (x.checkpoint1Id == cp2.checkpointId && x.checkpoint2Id == cp1.checkpointId)).Select(x => x.cost).ToList();
-            
             return costs.First();
         }
 
@@ -91,6 +90,15 @@ namespace ShippingApp.Services
             //if route is created
             if (test2.Count != 0)
             {
+                foreach (var rcp in test2)
+                {
+                    Console.WriteLine(rcp.Key+ " ");
+                    foreach(var a in rcp.Value)
+                    {
+                        Console.WriteLine(a.checkpointName+ " ");
+                    }
+                    Console.WriteLine("\n");
+                }
                 // finding route with minimum weight
                 var minKey = test2.Keys.Min();
 
@@ -138,7 +146,11 @@ namespace ShippingApp.Services
                 {
                     l.Add(t);
                 }
-                var lastCost = DisCost(cp2, temp.Last());
+                float lastCost = 0;
+                if(temp.Count != 0)
+                {
+					lastCost = DisCost(cp2, temp.Last());
+				}
                 //add route in dictionary
                 test2.Add(prevcost+lastCost,l);
                 // removing last added checkpoint
@@ -183,7 +195,6 @@ namespace ShippingApp.Services
             //if not then 
             if(count== 0 && temp.Count >0)
             {
-
                 var l = new List<CheckpointModel>();
                 foreach (var t in temp)
                 {

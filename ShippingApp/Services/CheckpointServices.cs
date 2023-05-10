@@ -22,8 +22,16 @@ namespace ShippingApp.Services
         {
             try
             {
-                //creating a checkpoint instance
-                var _checkpoint = new CheckpointModel(checkpoint);
+                //getting checkpoint with same name and lat long
+				var cp = _db.ShipmentCheckpoints.Where(x => (x.checkpointName == checkpoint.checkpointName) ||(x.latitude==checkpoint.latitude && x.longitude == checkpoint.longitude)).Count();
+                //if checkpoint already exist
+                if(cp != 0)
+                {
+					return new ResponseModel(400,"Checkpoint already exist",false);
+				}
+				//creating a checkpoint instance
+				var _checkpoint = new CheckpointModel(checkpoint);
+                
                 //adding checkpoint in DB
                 _db.ShipmentCheckpoints.Add(_checkpoint);
                 //saving checkpoint
@@ -38,7 +46,7 @@ namespace ShippingApp.Services
                 _db.SaveChanges();
                 _db.RouteCheckpoints.RemoveRange(_db.RouteCheckpoints);
                 _db.SaveChanges();
-                return new ResponseModel();
+                return new ResponseModel("checkpoint added");
             }
             catch(Exception ex)
             {
