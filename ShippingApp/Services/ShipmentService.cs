@@ -125,7 +125,7 @@ namespace ShippingApp.Services
             }
             catch (Exception ex)
             {
-                return new ResponseModel(500, ex.Message + ex.StackTrace!, false);
+                return new ResponseModel(500, ex.Message , false);
             }
         }
         //--------------- A Function to Change status ------>

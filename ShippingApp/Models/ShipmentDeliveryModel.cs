@@ -3,6 +3,6 @@
     public class ShipmentDeliveryModel
     {
         public SendShipmentModel shipment { get; set; } = new SendShipmentModel();
-        public List<CheckpointModel>? checkpoints { get; set; } 
+        public List<GetCheckpointModel>? checkpoints { get; set; } 
     }
 }

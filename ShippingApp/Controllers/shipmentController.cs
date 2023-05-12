@@ -95,5 +95,12 @@ namespace ShippingApp.Controllers
             var response = shipmentService.chartData();
             return StatusCode(response.statusCode, response);
         }
-    }
+		[HttpPost]
+		[Route("addGrandparent")]
+		public IActionResult addnode(AddCheckpointModel gp)
+		{
+			var response = checkpointServices.AddGrandParent(gp);
+			return StatusCode(response.statusCode, response);
+		}
+	}
 }

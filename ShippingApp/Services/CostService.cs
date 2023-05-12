@@ -30,7 +30,7 @@ namespace ShippingApp.Services
             //gwtting product type
             var product = apiCallingService.GetProductType(productTypeId);
             //route
-            List<CheckpointModel> shortRoute = shortestRoute.shortRoute(origin!,destination!);
+            List<GetCheckpointModel> shortRoute = shortestRoute.shortRoute(origin!,destination!);
             double totalDistance = 0;
             //calculating distance
             for(int i = 0; i < shortRoute.Count-1; i++)

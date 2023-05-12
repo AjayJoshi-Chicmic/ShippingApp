@@ -6,6 +6,6 @@ namespace ShippingApp.Services
     {
         public ProductType GetProductType(Guid? productTypeId);
         public ContainerTypeModel GetContainerType(Guid? containerTypeId);
-        public double GetDistance(CheckpointModel cp1, CheckpointModel cp2);
+        public double GetDistance(GetCheckpointModel cp1, GetCheckpointModel cp2);
     }
 }

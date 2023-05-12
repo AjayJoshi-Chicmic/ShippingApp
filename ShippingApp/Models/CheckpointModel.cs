@@ -9,6 +9,7 @@ namespace ShippingApp.Models
         public string checkpointName { get; set; } = string.Empty;
         public float latitude { get; set; }
         public float longitude { get; set; }
+        public Guid parentCheckpointId { get; set; }
 
         public CheckpointModel()
         {
@@ -19,6 +20,7 @@ namespace ShippingApp.Models
             this.checkpointName = checkpoint.checkpointName;
             this.latitude = checkpoint.latitude;
             this.longitude = checkpoint.longitude;
+            this.parentCheckpointId = checkpoint.parentCheckpointId;
         }
     }
 }

@@ -80,7 +80,7 @@ namespace ShippingApp.Services
             }
         }
 		//-------A function for Calling Api to distance b/w two checkpoints------------->
-		public double GetDistance(CheckpointModel cp1, CheckpointModel cp2)
+		public double GetDistance(GetCheckpointModel cp1, GetCheckpointModel cp2)
         {
 			// creating a http client instance
 			using (var client = new HttpClient())

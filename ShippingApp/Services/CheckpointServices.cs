@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using ShippingApp.Data;
 using ShippingApp.Migrations;
 using ShippingApp.Models;
+using System.Collections.Generic;
 
 namespace ShippingApp.Services
 {
@@ -59,43 +61,32 @@ namespace ShippingApp.Services
         public void createDistance(CheckpointModel checkpoint)
         {
             // getting all checkpoints
-            var checkpoints = _db.ShipmentCheckpoints.Where(x=>x.checkpointId!=checkpoint.checkpointId).Select(x => x).ToList();
+            var checkpoints = _db.ShipmentCheckpoints.Where(x=>x.checkpointId==checkpoint.parentCheckpointId).Select(x => x).ToList();
             // if no checkpoint exist
             if(checkpoints.Count == 0) { return; }
 
-            foreach (var _checkpoint in checkpoints)
+			double dist = apiCalling.GetDistance(new GetCheckpointModel(checkpoint), new GetCheckpointModel(checkpoints.First()));
+			var checkpointDistanceMap = new CheckpointsDistanceModel
+			{
+				checkpoint1Id = checkpoint.checkpointId,
+				checkpoint2Id = checkpoints.First().checkpointId,
+				distance = Convert.ToSingle(dist),
+				cost = 0
+			};
+			_db.CheckpointMappings.Add(checkpointDistanceMap);
+            var siblings = _db.ShipmentCheckpoints.Where(x => x.parentCheckpointId == checkpoint.parentCheckpointId && x.checkpointId != checkpoint.checkpointId).Select(x => x).ToList();
+            foreach (var s in siblings)
             {
-                //calling a function to get distance between two checkpoints
-                double dist = apiCalling.GetDistance(checkpoint, _checkpoint);
-                //calculating weight for each connection
-                double cost = 0;
-                if (dist < 50)
-                {
-                    cost = dist * 5;
-                }
-                else if (dist >= 50 && dist < 100)
-                {
-                    cost = dist * 10;
-                }
-                else if (dist >= 100 && dist < 300)
-                {
-                    cost = dist * 20;
-                }
-                else
-                {
-                    cost = dist * 40;
-                }
-                //creating an instance of the connection
-                var checkpointDistanceMap = new CheckpointsDistanceModel
-                {
-                    checkpoint1Id = checkpoint.checkpointId,
-                    checkpoint2Id = _checkpoint.checkpointId,
-                    distance = Convert.ToSingle(dist),
-                    cost = Convert.ToSingle(cost)
-                };
-				//saving this connection in database
-				_db.CheckpointMappings.Add(checkpointDistanceMap);
-            }
+				double distance = apiCalling.GetDistance(new GetCheckpointModel(checkpoint), new GetCheckpointModel(s));
+				var checkpointDistanceMap1 = new CheckpointsDistanceModel
+				{
+					checkpoint1Id = checkpoint.checkpointId,
+					checkpoint2Id = s.checkpointId,
+					distance = Convert.ToSingle(distance),
+					cost = 0
+				};
+				_db.CheckpointMappings.Add(checkpointDistanceMap1);
+			}
         }
 
         //---------------- A Function to get checkpoints------------------->
@@ -111,8 +102,13 @@ namespace ShippingApp.Services
                     //returning no checkpoint found
                     return new ResponseModel(404,"no checkpoint found", checkpoints,false);
                 }
+                List<GetCheckpointModel> list = new List<GetCheckpointModel>();
+                foreach (var cp in checkpoints)
+                {
+                    list.Add(new GetCheckpointModel(cp));
+                }
                 //returning checkpoints
-                return new ResponseModel("Checkpoint", checkpoints);
+                return new ResponseModel("Checkpoint", list);
             }
             catch(Exception ex)
             {
@@ -131,7 +127,7 @@ namespace ShippingApp.Services
                 if(dist.Count() == 0)
                 {
                     //returning error
-                    return new ResponseModel(404, "Not Found",false);
+                    return new ResponseModel(404, "No coonection Found",false);
                 }
                 return new ResponseModel("distance",dist.First());
             }
@@ -140,5 +136,12 @@ namespace ShippingApp.Services
                 return new ResponseModel(500, ex.Message, false);
             }
         }
+        public ResponseModel AddGrandParent(AddCheckpointModel gp)
+        {
+            gp.parentCheckpointId = Guid.Empty;
+            _db.ShipmentCheckpoints.Add(new CheckpointModel(gp));
+            _db.SaveChanges();
+			return new ResponseModel();
+		}
     }
 }
