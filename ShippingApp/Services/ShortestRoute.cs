@@ -68,11 +68,11 @@ namespace ShippingApp.Services
 			var cp1H = checkpointHierarchy(cp1);
 			var cp2H = checkpointHierarchy(cp2);
 
-            var check = 0;
+            var check = -1;
             int k = 0;
             foreach (var cp in cp1H)
             {
-                if(check == 0)
+                if(check == -1)
                 {
 					cpList.Add(cp);
 					for (int i = 0; i < cp2H.Count; i++)
@@ -84,7 +84,6 @@ namespace ShippingApp.Services
                             {
 								cpList.Remove(cp);
 							}
-							break;
 						}
 					}
 				}
